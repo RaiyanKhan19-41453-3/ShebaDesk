@@ -1,5 +1,6 @@
 package com.mgt.hospital.dto;
 
+import com.mgt.hospital.dto.validators.CreatePatientValidationGroup;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -20,7 +21,7 @@ public class PatientRequestDTO {
     @NotNull(message = "Date of birth is required")
     private String dateOfBirth;
 
-    @NotNull(message = "Registered date is reauired")
+    @NotNull(groups = CreatePatientValidationGroup.class, message = "Registered date is reauired")
     private String registeredDate;
 
     public String getName() {
