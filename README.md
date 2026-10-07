@@ -14,6 +14,7 @@ No local Java, Maven, or MySQL required. Clone it, run `make up`, and hit the AP
 | 🔎 API quality | Pagination, sorting, case-insensitive search, `201 + Location`, correct `404/409/400` semantics |
 | 🧯 Errors | RFC7807 `ProblemDetail` everywhere — machine-readable `status/title/detail`, field-level `errors{}` for validation |
 | 🗄️ Data | Flyway `V1` schema + `V2` seed, Hibernate `validate` (never auto-migrates), FK + `UNIQUE(doctor, date)` guards against race conditions |
+| 🔐 Auth | JWT Bearer login, `ADMIN` / `RECEPTIONIST` roles, BCrypt hashing, JSON `401/403` |
 | 🐳 Ops | Multi-stage Dockerfile (non-root `appuser`, healthcheck), Compose with healthy MySQL gating, Actuator health |
 | ✅ Tests | 10 tests — MockMvc API suite on H2 + Mockito unit tests, all runnable without Docker |
 | 📖 Docs | Live Swagger UI with `@Tag/@Operation` annotations |
@@ -32,7 +33,17 @@ Then open:
 
 - **Swagger UI** → http://localhost:4000/swagger-ui.html
 - **Health** → http://localhost:4000/actuator/health → `{"status":"UP"}`
-- **Seeded doctors** → http://localhost:4000/doctors?size=2
+- **Seeded doctors** → http://localhost:4000/doctors?size=2 (login first — see Auth below)
+
+Default admin (seeded by Flyway `V4`): username `admin`, password `Admin123!` — change it after first login.
+
+```bash
+# login and call the API
+TOKEN=$(curl -s -X POST localhost:4000/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"username":"admin","password":"Admin123!"}' | python3 -c "import sys,json;print(json.load(sys.stdin)['accessToken'])")
+curl -H "Authorization: Bearer $TOKEN" localhost:4000/patients | head -c 300
+```
 
 ```bash
 make logs    # follow API logs
@@ -57,23 +68,29 @@ SPRING_DATASOURCE_USERNAME=root SPRING_DATASOURCE_PASSWORD=root ./mvnw spring-bo
 ## 🧭 Try it in 60 seconds
 
 ```bash
+# 0. Login (all /patients, /doctors, /appointments calls need the token)
+TOKEN=$(curl -s -X POST localhost:4000/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"username":"admin","password":"Admin123!"}' | python3 -c "import sys,json;print(json.load(sys.stdin)['accessToken'])")
+AUTH=(-H "Authorization: Bearer $TOKEN")
+
 # 1. Create a patient (201 + Location header)
-curl -i -X POST localhost:4000/patients -H 'Content-Type: application/json' -d '{
+curl -i -X POST localhost:4000/patients "${AUTH[@]}" -H 'Content-Type: application/json' -d '{
   "name": "Ada Lovelace", "email": "ada@example.com", "location": "Dhaka",
   "dateOfBirth": "1990-01-01", "registeredDate": "2026-10-07"
 }'
 
 # 2. Search patients (paginated)
-curl 'localhost:4000/patients?name=ada&size=5' | python3 -m json.tool | head -20
+curl "${AUTH[@]}" 'localhost:4000/patients?name=ada&size=5' | python3 -m json.tool | head -20
 
 # 3. Book an appointment with seeded Dr House (id 1)
-curl -X POST localhost:4000/appointments -H 'Content-Type: application/json' -d '{
+curl -X POST localhost:4000/appointments "${AUTH[@]}" -H 'Content-Type: application/json' -d '{
   "doctorId": 1, "patientId": "<id-from-step-1>",
   "appointmentDate": "2026-11-01", "notes": "Annual checkup"
 }'
 
 # 4. Book the same slot again → 409 Conflict (ProblemDetail)
-curl -X POST localhost:4000/appointments -H 'Content-Type: application/json' -d '{
+curl -X POST localhost:4000/appointments "${AUTH[@]}" -H 'Content-Type: application/json' -d '{
   "doctorId": 1, "patientId": "<id-from-step-1>", "appointmentDate": "2026-11-01"
 }'
 # {"type":"about:blank","title":"Conflict","status":409,
@@ -84,7 +101,16 @@ curl -X POST localhost:4000/appointments -H 'Content-Type: application/json' -d 
 
 ## 🔌 API reference
 
-### Patients `/patients`
+### Auth `/auth`
+
+| Method | Endpoint | Access | Notes |
+|---|---|---|---|
+| `POST` | `/auth/login` | Public | `{username, password}` → `{tokenType, accessToken, expiresInSeconds}`; `401` on bad credentials |
+| `POST` | `/auth/register` | `ADMIN` only | `{username, password≥8, role}` → `201`; `403` for receptionists |
+
+Reads need a valid token; writes need `ADMIN` or `RECEPTIONIST`. Send `Authorization: Bearer <token>`. Configure via env: `JWT_SECRET` (required in prod), `JWT_EXPIRATION_MS` (default 24h).
+
+### Patients `/patients` (authenticated)
 
 | Method | Endpoint | Success | Errors |
 |---|---|---|---|
@@ -147,7 +173,7 @@ patients (id UUID, name, location, email UNIQUE, date_of_birth, registered_date)
 
 ```bash
 ./mvnw test
-# Tests run: 10, Failures: 0, Errors: 0 — BUILD SUCCESS
+# Tests run: 12, Failures: 0, Errors: 0 — BUILD SUCCESS
 ```
 
 - `HospitalApiTest` (MockMvc + H2): create→`201`+`Location`, duplicate→`409`, validation→`400` with `errors{}`, missing→`404`, book→`201`, double-book→`409`
@@ -175,7 +201,7 @@ Makefile                      # up / down / logs / test / build / ps / seed-chec
 
 ## 🛣️ Roadmap
 
-- [ ] JWT auth with `ADMIN` / `RECEPTIONIST` roles
+- [x] JWT auth with `ADMIN` / `RECEPTIONIST` roles
 - [ ] Audit fields (`createdAt`, `updatedAt`) + soft delete
 - [ ] Prometheus metrics + Grafana dashboard
 - [ ] React admin frontend
