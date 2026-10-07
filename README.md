@@ -202,12 +202,23 @@ docker-compose.yml            # mysql:8.0 (healthy-gated) + app
 Makefile                      # up / down / logs / test / build / ps / seed-check
 ```
 
+## 🖥️ Frontend
+
+React 18 + Vite + TypeScript + Tailwind + TanStack Query, in `frontend/`:
+
+```bash
+cd frontend && npm install && npm run dev   # http://localhost:5173 (API at :4000)
+```
+
+`make up` also serves the production build via nginx at http://localhost:8080
+(`VITE_API_URL` build arg points it at the API). English/বাংলা toggle in the header.
+
 ## 🛣️ Roadmap
 
 - [x] JWT auth with `ADMIN` / `RECEPTIONIST` roles
 - [x] Audit fields (`createdAt`, `updatedAt`) + soft delete
 - [x] Prometheus metrics + Grafana dashboard
-- [ ] React admin frontend
+- [x] React admin frontend (EN/বাংলা, dashboard, CRUD, booking)
 
 ---
 
