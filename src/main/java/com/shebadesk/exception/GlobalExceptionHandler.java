@@ -1,41 +1,95 @@
-package com.mgt.hospital.exception;
+package com.shebadesk.exception;
 
-import ch.qos.logback.core.model.processor.ModelHandlerException;
-import com.mgt.hospital.model.Patient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
+    private ProblemDetail problem(HttpStatus status, String title, String detail) {
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(status, detail);
+        pd.setTitle(title);
+        return pd;
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidationException(MethodArgumentNotValidException ex){
+    public ProblemDetail handleValidationException(MethodArgumentNotValidException ex){
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
-        return ResponseEntity.badRequest().body(errors);
+        ProblemDetail pd = problem(HttpStatus.BAD_REQUEST, "Validation failed", "One or more fields are invalid");
+        pd.setProperty("errors", errors);
+        return pd;
     }
 
     @ExceptionHandler(EmailAlreadyExistsException.class)
-    public ResponseEntity<Map<String, String>> handleEmailAlreadyExistsException(EmailAlreadyExistsException ex){
+    public ProblemDetail handleEmailAlreadyExistsException(EmailAlreadyExistsException ex){
         log.warn("Email already exists {}", ex.getMessage());
-        Map<String, String> errors = new HashMap<>();
-        errors.put("message", "Emails already exists");
-        return ResponseEntity.badRequest().body(errors);
+        return problem(HttpStatus.CONFLICT, "Conflict", ex.getMessage());
     }
 
     @ExceptionHandler(PatientNotFoundException.class)
-    public ResponseEntity<Map<String, String>> handlePatientNotFoundException(PatientNotFoundException ex){
+    public ProblemDetail handlePatientNotFoundException(PatientNotFoundException ex){
         log.warn("Patient not found {}", ex.getMessage());
-        Map<String, String> errors = new HashMap<>();
-        errors.put("message", "Patient not found");
-        return ResponseEntity.badRequest().body(errors);
+        return problem(HttpStatus.NOT_FOUND, "Not found", ex.getMessage());
+    }
+
+    @ExceptionHandler(DoctorNotFoundException.class)
+    public ProblemDetail handleDoctorNotFoundException(DoctorNotFoundException ex){
+        log.warn("Doctor not found {}", ex.getMessage());
+        return problem(HttpStatus.NOT_FOUND, "Not found", ex.getMessage());
+    }
+
+    @ExceptionHandler(AppointmentNotFoundException.class)
+    public ProblemDetail handleAppointmentNotFoundException(AppointmentNotFoundException ex){
+        log.warn("Appointment not found {}", ex.getMessage());
+        return problem(HttpStatus.NOT_FOUND, "Not found", ex.getMessage());
+    }
+
+    @ExceptionHandler(AppointmentConflictException.class)
+    public ProblemDetail handleAppointmentConflictException(AppointmentConflictException ex){
+        log.warn("Appointment conflict {}", ex.getMessage());
+        return problem(HttpStatus.CONFLICT, "Conflict", ex.getMessage());
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ProblemDetail handleTypeMismatch(MethodArgumentTypeMismatchException ex){
+        return problem(HttpStatus.BAD_REQUEST, "Bad request",
+                "Invalid value '" + ex.getValue() + "' for parameter '" + ex.getName() + "'");
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ProblemDetail handleNotReadable(HttpMessageNotReadableException ex){
+        log.warn("Malformed request body {}", ex.getMessage());
+        return problem(HttpStatus.BAD_REQUEST, "Bad request", "Malformed JSON request");
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ProblemDetail handleIllegalArgument(IllegalArgumentException ex){
+        log.warn("Bad request {}", ex.getMessage());
+        return problem(HttpStatus.BAD_REQUEST, "Bad request", ex.getMessage());
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ProblemDetail handleDataIntegrity(DataIntegrityViolationException ex){
+        log.warn("Data integrity violation {}", ex.getMessage());
+        return problem(HttpStatus.CONFLICT, "Conflict", "Request conflicts with existing data");
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ProblemDetail handleGeneric(Exception ex){
+        log.error("Unhandled error", ex);
+        return problem(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error", "An unexpected error occurred");
     }
 }

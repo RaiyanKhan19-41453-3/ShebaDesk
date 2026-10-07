@@ -1,7 +1,8 @@
-package com.mgt.hospital.model;
+package com.shebadesk.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
@@ -10,28 +11,33 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
+@Table(name = "patients")
 public class Patient {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @NotNull
+    @NotBlank
+    @Column(nullable = false)
     private String name;
 
-    @NotNull
+    @NotBlank
+    @Column(nullable = false)
     private String location;
 
-    @NotNull
+    @NotBlank
     @Email
-    @Column(unique = true)
+    @Column(nullable = false, unique = true)
     private String email;
 
     @NotNull
+    @Column(nullable = false)
     private LocalDate dateOfBirth;
 
     @NotNull
-    public LocalDate registeredDate;
+    @Column(nullable = false)
+    private LocalDate registeredDate;
 
     @OneToMany(mappedBy = "patient")
     private List<Appointment> appointments = new ArrayList<>();

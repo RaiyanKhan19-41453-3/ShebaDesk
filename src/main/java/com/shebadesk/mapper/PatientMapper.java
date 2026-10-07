@@ -1,19 +1,18 @@
-package com.mgt.hospital.mapper;
+package com.shebadesk.mapper;
 
-import com.mgt.hospital.dto.PatientRequestDTO;
-import com.mgt.hospital.dto.PatientResponseDTO;
-import com.mgt.hospital.model.Patient;
-
-import java.time.LocalDate;
+import com.shebadesk.dto.PatientRequestDTO;
+import com.shebadesk.dto.PatientResponseDTO;
+import com.shebadesk.model.Patient;
 
 public class PatientMapper {
     public static PatientResponseDTO toDTO(Patient patient){
         PatientResponseDTO patientDTO = new PatientResponseDTO();
-        patientDTO.setId(patient.getId().toString());
-        patientDTO.setName(patient.getName().toString());
-        patientDTO.setEmail(patient.getEmail().toString());
-        patientDTO.setLocation(patient.getLocation().toString());
-        patientDTO.setDateOfBirth(patient.getDateOfBirth().toString());
+        patientDTO.setId(patient.getId() != null ? patient.getId().toString() : null);
+        patientDTO.setName(patient.getName());
+        patientDTO.setEmail(patient.getEmail());
+        patientDTO.setLocation(patient.getLocation());
+        patientDTO.setDateOfBirth(patient.getDateOfBirth());
+        patientDTO.setRegisteredDate(patient.getRegisteredDate());
         return patientDTO;
     }
 
@@ -22,8 +21,8 @@ public class PatientMapper {
         patient.setName(patientRequestDTO.getName());
         patient.setEmail(patientRequestDTO.getEmail());
         patient.setLocation(patientRequestDTO.getLocation());
-        patient.setDateOfBirth(LocalDate.parse(patientRequestDTO.getDateOfBirth()));
-        patient.setRegisteredDate(LocalDate.parse(patientRequestDTO.getRegisteredDate()));
+        patient.setDateOfBirth(patientRequestDTO.getDateOfBirth());
+        patient.setRegisteredDate(patientRequestDTO.getRegisteredDate());
         return patient;
     }
 }

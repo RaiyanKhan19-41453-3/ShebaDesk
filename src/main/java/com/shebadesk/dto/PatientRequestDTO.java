@@ -1,10 +1,12 @@
-package com.mgt.hospital.dto;
+package com.shebadesk.dto;
 
-import com.mgt.hospital.dto.validators.CreatePatientValidationGroup;
+import com.shebadesk.dto.validators.CreatePatientValidationGroup;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Size;
+import java.time.LocalDate;
 
 public class PatientRequestDTO {
     @NotBlank(message = "Name is required")
@@ -15,14 +17,16 @@ public class PatientRequestDTO {
     @Email(message = "Provide valid email")
     private String email;
 
-    @NotNull(message = "Location is required")
+    @NotBlank(message = "Location is required")
     private String location;
 
     @NotNull(message = "Date of birth is required")
-    private String dateOfBirth;
+    @PastOrPresent(message = "Date of birth must be in the past or today")
+    private LocalDate dateOfBirth;
 
-    @NotNull(groups = CreatePatientValidationGroup.class, message = "Registered date is reauired")
-    private String registeredDate;
+    @NotNull(groups = CreatePatientValidationGroup.class, message = "Registered date is required")
+    @PastOrPresent(groups = CreatePatientValidationGroup.class, message = "Registered date must be in the past or today")
+    private LocalDate registeredDate;
 
     public String getName() {
         return name;
@@ -48,19 +52,19 @@ public class PatientRequestDTO {
         this.location = location;
     }
 
-    public String getDateOfBirth() {
+    public LocalDate getDateOfBirth() {
         return dateOfBirth;
     }
 
-    public void setDateOfBirth(String dateOfBirth) {
+    public void setDateOfBirth(LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
 
-    public String getRegisteredDate() {
+    public LocalDate getRegisteredDate() {
         return registeredDate;
     }
 
-    public void setRegisteredDate(String registeredDate) {
+    public void setRegisteredDate(LocalDate registeredDate) {
         this.registeredDate = registeredDate;
     }
 }

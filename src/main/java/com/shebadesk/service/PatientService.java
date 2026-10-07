@@ -1,36 +1,54 @@
-package com.mgt.hospital.service;
+package com.shebadesk.service;
 
-import com.mgt.hospital.dto.PatientRequestDTO;
-import com.mgt.hospital.dto.PatientResponseDTO;
-import com.mgt.hospital.exception.EmailAlreadyExistsException;
-import com.mgt.hospital.exception.PatientNotFoundException;
-import com.mgt.hospital.mapper.PatientMapper;
-import com.mgt.hospital.model.Patient;
-import com.mgt.hospital.repository.PatientRepository;
+import com.shebadesk.dto.PatientRequestDTO;
+import com.shebadesk.dto.PatientResponseDTO;
+import com.shebadesk.exception.EmailAlreadyExistsException;
+import com.shebadesk.exception.PatientNotFoundException;
+import com.shebadesk.mapper.PatientMapper;
+import com.shebadesk.model.Patient;
+import com.shebadesk.repository.PatientRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.util.List;
 import java.util.UUID;
 
 @Service
 public class PatientService {
-    private PatientRepository patientRepository;
+    private final PatientRepository patientRepository;
 
     public PatientService(PatientRepository patientRepository) {
         this.patientRepository = patientRepository;
     }
 
-    public List<PatientResponseDTO> getPatients(){
-        List<Patient> patients = patientRepository.findAll();
-        List<PatientResponseDTO> patientResponseDTOs = patients.stream().map(patient -> PatientMapper.toDTO(patient)).toList();
-
-        return  patientResponseDTOs;
+    @Transactional(readOnly = true)
+    public Page<PatientResponseDTO> getPatients(Pageable pageable, String name, String email){
+        Page<Patient> page;
+        boolean hasName = name != null && !name.isBlank();
+        boolean hasEmail = email != null && !email.isBlank();
+        if (hasName && hasEmail) {
+            page = patientRepository.findByNameContainingIgnoreCaseAndEmailContainingIgnoreCase(name, email, pageable);
+        } else if (hasName) {
+            page = patientRepository.findByNameContainingIgnoreCase(name, pageable);
+        } else if (hasEmail) {
+            page = patientRepository.findByEmailContainingIgnoreCase(email, pageable);
+        } else {
+            page = patientRepository.findAll(pageable);
+        }
+        return page.map(PatientMapper::toDTO);
     }
 
+    @Transactional(readOnly = true)
+    public PatientResponseDTO getPatientById(UUID id){
+        Patient patient = patientRepository.findById(id).orElseThrow(() -> new PatientNotFoundException("Patient not found with id: " + id));
+        return PatientMapper.toDTO(patient);
+    }
+
+    @Transactional
     public PatientResponseDTO createPatient(PatientRequestDTO patientRequestDTO){
         if(patientRepository.existsByEmail(patientRequestDTO.getEmail())){
-            throw new EmailAlreadyExistsException("A patient with this email already exist " + patientRequestDTO.getEmail());
+            throw new EmailAlreadyExistsException("A patient with this email already exists: " + patientRequestDTO.getEmail());
         }
         Patient patient = patientRepository.save(
                 PatientMapper.toModel(patientRequestDTO)
@@ -40,24 +58,27 @@ public class PatientService {
         return patientResponseDTO;
     }
 
+    @Transactional
     public PatientResponseDTO updatePatient(UUID id, PatientRequestDTO patientRequestDTO){
-        Patient patient = patientRepository.findById(id).orElseThrow(() -> new PatientNotFoundException("Patient Not found with id : " + id));
+        Patient patient = patientRepository.findById(id).orElseThrow(() -> new PatientNotFoundException("Patient not found with id: " + id));
 
         if(patientRepository.existsByEmailAndIdNot(patientRequestDTO.getEmail(), id)){
-            throw new EmailAlreadyExistsException("A patient with this email already exist " + patientRequestDTO.getEmail());
+            throw new EmailAlreadyExistsException("A patient with this email already exists: " + patientRequestDTO.getEmail());
         }
 
-        patient.setName(patientRequestDTO.getName().toString());
-        patient.setEmail(patientRequestDTO.getEmail().toString());
-        patient.setLocation(patientRequestDTO.getLocation().toString());
-        patient.setDateOfBirth(LocalDate.parse(patientRequestDTO.getDateOfBirth()));
+        patient.setName(patientRequestDTO.getName());
+        patient.setEmail(patientRequestDTO.getEmail());
+        patient.setLocation(patientRequestDTO.getLocation());
+        patient.setDateOfBirth(patientRequestDTO.getDateOfBirth());
 
         Patient updatedPatient = patientRepository.save(patient);
 
         return PatientMapper.toDTO(updatedPatient);
     }
 
+    @Transactional
     public void deletePatient(UUID id){
-        patientRepository.deleteById(id);
+        Patient patient = patientRepository.findById(id).orElseThrow(() -> new PatientNotFoundException("Patient not found with id: " + id));
+        patientRepository.delete(patient);
     }
 }
