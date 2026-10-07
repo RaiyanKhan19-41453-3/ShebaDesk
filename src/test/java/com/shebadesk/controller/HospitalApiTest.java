@@ -159,6 +159,54 @@ class HospitalApiTest {
     }
 
     @Test
+    void httpSemantics_wrongMethodTypeAndPath() throws Exception {
+        mockMvc.perform(post("/patients/123").with(bearer(adminToken))
+                        .contentType(MediaType.APPLICATION_JSON).content("{}"))
+                .andExpect(status().isMethodNotAllowed())
+                .andExpect(jsonPath("$.status").value(405));
+
+        mockMvc.perform(post("/patients").with(bearer(adminToken))
+                        .contentType(MediaType.TEXT_PLAIN).content("{}"))
+                .andExpect(status().isUnsupportedMediaType())
+                .andExpect(jsonPath("$.status").value(415));
+
+        mockMvc.perform(get("/no-such-endpoint").with(bearer(adminToken)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404));
+    }
+
+    @Test
+    void patients_softDelete_hidesAndBlocksEmailReuse() throws Exception {
+        String email = "softdel" + System.nanoTime() + "@test.com";
+        String body = """
+                {"name":"Soft Del","email":"%s","location":"Dhaka","dateOfBirth":"1990-01-01","registeredDate":"%s"}
+                """.formatted(email, LocalDate.now());
+
+        String idBody = mockMvc.perform(post("/patients").with(bearer(adminToken))
+                        .contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.createdAt").exists())
+                .andExpect(jsonPath("$.updatedAt").exists())
+                .andReturn().getResponse().getContentAsString();
+        String id = field(idBody, "id");
+
+        mockMvc.perform(delete("/patients/" + id).with(bearer(adminToken)))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(get("/patients/" + id).with(bearer(adminToken)))
+                .andExpect(status().isNotFound());
+
+        mockMvc.perform(get("/patients").with(bearer(adminToken))
+                        .param("email", email))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalElements").value(0));
+
+        mockMvc.perform(post("/patients").with(bearer(adminToken))
+                        .contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
     void security_unauthenticated_returns401() throws Exception {
         mockMvc.perform(get("/patients"))
                 .andExpect(status().isUnauthorized())

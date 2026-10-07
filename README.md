@@ -15,6 +15,7 @@ No local Java, Maven, or MySQL required. Clone it, run `make up`, and hit the AP
 | 🧯 Errors | RFC7807 `ProblemDetail` everywhere — machine-readable `status/title/detail`, field-level `errors{}` for validation |
 | 🗄️ Data | Flyway `V1` schema + `V2` seed, Hibernate `validate` (never auto-migrates), FK + `UNIQUE(doctor, date)` guards against race conditions |
 | 🔐 Auth | JWT Bearer login, `ADMIN` / `RECEPTIONIST` roles, BCrypt hashing, JSON `401/403` |
+| 🕰️ Data safety | `createdAt`/`updatedAt` auditing on every record; soft delete (deletes hide, never destroy; emails stay reserved) |
 | 🐳 Ops | Multi-stage Dockerfile (non-root `appuser`, healthcheck), Compose with healthy MySQL gating, Actuator health |
 | ✅ Tests | 10 tests — MockMvc API suite on H2 + Mockito unit tests, all runnable without Docker |
 | 📖 Docs | Live Swagger UI with `@Tag/@Operation` annotations |
@@ -165,6 +166,8 @@ patients (id UUID, name, location, email UNIQUE, date_of_birth, registered_date)
 
 - `src/main/resources/db/migration/V1__init.sql` — tables, unique keys, foreign keys
 - `src/main/resources/db/migration/V2__seed.sql` — 2 doctors + 2 patients to explore with
+- `src/main/resources/db/migration/V3__users.sql` + `V4__admin.sql` — login users + default `admin`
+- `src/main/resources/db/migration/V5__audit.sql` — `created_at` / `updated_at` / `deleted` on all tables
 - Hibernate runs `ddl-auto=validate`: the app refuses to start on schema drift instead of silently altering your database
 
 ---
@@ -202,7 +205,7 @@ Makefile                      # up / down / logs / test / build / ps / seed-chec
 ## 🛣️ Roadmap
 
 - [x] JWT auth with `ADMIN` / `RECEPTIONIST` roles
-- [ ] Audit fields (`createdAt`, `updatedAt`) + soft delete
+- [x] Audit fields (`createdAt`, `updatedAt`) + soft delete
 - [ ] Prometheus metrics + Grafana dashboard
 - [ ] React admin frontend
 

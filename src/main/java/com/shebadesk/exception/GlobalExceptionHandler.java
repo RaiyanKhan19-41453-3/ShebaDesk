@@ -100,6 +100,25 @@ public class GlobalExceptionHandler {
         return problem(HttpStatus.FORBIDDEN, "Forbidden", "You do not have permission for this resource");
     }
 
+    @ExceptionHandler(org.springframework.web.HttpRequestMethodNotSupportedException.class)
+    public ProblemDetail handleMethodNotSupported(org.springframework.web.HttpRequestMethodNotSupportedException ex){
+        log.warn("Method not supported {}", ex.getMessage());
+        return problem(HttpStatus.METHOD_NOT_ALLOWED, "Method not allowed",
+                "HTTP " + ex.getMethod() + " is not supported for this endpoint");
+    }
+
+    @ExceptionHandler(org.springframework.web.HttpMediaTypeNotSupportedException.class)
+    public ProblemDetail handleMediaTypeNotSupported(org.springframework.web.HttpMediaTypeNotSupportedException ex){
+        log.warn("Unsupported media type {}", ex.getMessage());
+        return problem(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Unsupported media type",
+                "Use Content-Type: application/json");
+    }
+
+    @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
+    public ProblemDetail handleNoResource(org.springframework.web.servlet.resource.NoResourceFoundException ex){
+        return problem(HttpStatus.NOT_FOUND, "Not found", "No such endpoint");
+    }
+
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleGeneric(Exception ex){
         log.error("Unhandled error", ex);
