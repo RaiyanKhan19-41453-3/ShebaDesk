@@ -1,11 +1,15 @@
 package com.shebadesk.dto;
 
+import java.time.Instant;
+
 public class DoctorResponseDTO {
     private Long id;
     private String name;
     private String specialty;
     private String email;
     private String phone;
+    private Instant createdAt;
+    private Instant updatedAt;
 
     public Long getId() {
         return id;
@@ -45,5 +49,21 @@ public class DoctorResponseDTO {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

@@ -1,5 +1,6 @@
 package com.shebadesk.dto;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -11,6 +12,8 @@ public class AppointmentResponseDTO {
     private String patientName;
     private LocalDate appointmentDate;
     private String notes;
+    private Instant createdAt;
+    private Instant updatedAt;
 
     public Long getId() {
         return id;
@@ -66,5 +69,21 @@ public class AppointmentResponseDTO {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

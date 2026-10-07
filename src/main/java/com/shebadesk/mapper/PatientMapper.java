@@ -13,6 +13,8 @@ public class PatientMapper {
         patientDTO.setLocation(patient.getLocation());
         patientDTO.setDateOfBirth(patient.getDateOfBirth());
         patientDTO.setRegisteredDate(patient.getRegisteredDate());
+        patientDTO.setCreatedAt(patient.getCreatedAt());
+        patientDTO.setUpdatedAt(patient.getUpdatedAt());
         return patientDTO;
     }
 

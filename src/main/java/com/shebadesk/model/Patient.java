@@ -12,7 +12,8 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "patients")
-public class Patient {
+@org.hibernate.annotations.SoftDelete(columnName = "deleted")
+public class Patient extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

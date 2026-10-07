@@ -1,5 +1,6 @@
 package com.shebadesk.dto;
 
+import java.time.Instant;
 import java.time.LocalDate;
 
 public class PatientResponseDTO {
@@ -9,6 +10,8 @@ public class PatientResponseDTO {
     private String email;
     private LocalDate dateOfBirth;
     private LocalDate registeredDate;
+    private Instant createdAt;
+    private Instant updatedAt;
 
     public String getId() {
         return id;
@@ -56,5 +59,21 @@ public class PatientResponseDTO {
 
     public void setRegisteredDate(LocalDate registeredDate) {
         this.registeredDate = registeredDate;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

@@ -12,6 +12,8 @@ public class DoctorMapper {
         dto.setSpecialty(doctor.getSpecialty());
         dto.setEmail(doctor.getEmail());
         dto.setPhone(doctor.getPhone());
+        dto.setCreatedAt(doctor.getCreatedAt());
+        dto.setUpdatedAt(doctor.getUpdatedAt());
         return dto;
     }
 

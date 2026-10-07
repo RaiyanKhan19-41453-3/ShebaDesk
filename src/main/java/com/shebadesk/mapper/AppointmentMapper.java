@@ -17,6 +17,8 @@ public class AppointmentMapper {
         }
         dto.setAppointmentDate(appointment.getAppointmentDate());
         dto.setNotes(appointment.getNotes());
+        dto.setCreatedAt(appointment.getCreatedAt());
+        dto.setUpdatedAt(appointment.getUpdatedAt());
         return dto;
     }
 }

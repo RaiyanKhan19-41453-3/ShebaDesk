@@ -15,7 +15,8 @@ import java.util.List;
 
 @Entity
 @Table(name = "doctors")
-public class Doctor {
+@org.hibernate.annotations.SoftDelete(columnName = "deleted")
+public class Doctor extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

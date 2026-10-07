@@ -17,7 +17,8 @@ import java.time.LocalDate;
 @Entity
 @Table(name = "appointments",
         uniqueConstraints = @UniqueConstraint(columnNames = {"doctor_id", "appointment_date"}))
-public class Appointment {
+@org.hibernate.annotations.SoftDelete(columnName = "deleted")
+public class Appointment extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
