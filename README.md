@@ -109,7 +109,7 @@ curl -X POST localhost:4000/appointments "${AUTH[@]}" -H 'Content-Type: applicat
 | `POST` | `/auth/login` | Public | `{username, password}` → `{tokenType, accessToken, expiresInSeconds}`; `401` on bad credentials |
 | `POST` | `/auth/register` | `ADMIN` only | `{username, password≥8, role}` → `201`; `403` for receptionists |
 
-Reads need a valid token; writes need `ADMIN` or `RECEPTIONIST`. Send `Authorization: Bearer <token>`. Configure via env: `JWT_SECRET` (required in prod), `JWT_EXPIRATION_MS` (default 24h).
+Reads need a valid token; writes need `ADMIN` or `RECEPTIONIST`. Send `Authorization: Bearer <token>`. Configure via env: `JWT_SECRET` (required in prod), `JWT_EXPIRATION_MS` (default 24h). Browser frontends on `:5173`/`:5200`/`:8080` are CORS-allowed (override with `CORS_ALLOWED_ORIGINS`).
 
 ### Patients `/patients` (authenticated)
 
