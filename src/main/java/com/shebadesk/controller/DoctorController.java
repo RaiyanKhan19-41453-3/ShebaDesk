@@ -7,6 +7,7 @@ import com.shebadesk.service.AppointmentService;
 import com.shebadesk.service.DoctorService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -23,6 +24,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/doctors")
 @Tag(name = "Doctors", description = "Doctor management APIs")
+@SecurityRequirement(name = "bearerAuth")
 public class DoctorController {
     private final DoctorService doctorService;
     private final AppointmentService appointmentService;

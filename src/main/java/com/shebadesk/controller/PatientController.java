@@ -6,6 +6,7 @@ import com.shebadesk.dto.validators.CreatePatientValidationGroup;
 import com.shebadesk.service.PatientService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.groups.Default;
 import org.springframework.data.domain.Page;
@@ -23,6 +24,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/patients")
 @Tag(name = "Patients", description = "Patient management APIs")
+@SecurityRequirement(name = "bearerAuth")
 public class PatientController {
     private final PatientService patientService;
 

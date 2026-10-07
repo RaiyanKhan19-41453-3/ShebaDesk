@@ -5,6 +5,7 @@ import com.shebadesk.dto.AppointmentResponseDTO;
 import com.shebadesk.service.AppointmentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -23,6 +24,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/appointments")
 @Tag(name = "Appointments", description = "Appointment scheduling APIs")
+@SecurityRequirement(name = "bearerAuth")
 public class AppointmentController {
     private final AppointmentService appointmentService;
 

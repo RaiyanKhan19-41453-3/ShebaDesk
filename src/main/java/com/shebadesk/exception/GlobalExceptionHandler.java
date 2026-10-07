@@ -87,6 +87,19 @@ public class GlobalExceptionHandler {
         return problem(HttpStatus.CONFLICT, "Conflict", "Request conflicts with existing data");
     }
 
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ProblemDetail handleInvalidCredentials(InvalidCredentialsException ex){
+        log.warn("Failed login for {}", ex.getMessage());
+        return problem(HttpStatus.UNAUTHORIZED, "Unauthorized", "Invalid username or password");
+    }
+
+    @ExceptionHandler({org.springframework.security.access.AccessDeniedException.class,
+            org.springframework.security.authorization.AuthorizationDeniedException.class})
+    public ProblemDetail handleAccessDenied(Exception ex){
+        log.warn("Forbidden access {}", ex.getMessage());
+        return problem(HttpStatus.FORBIDDEN, "Forbidden", "You do not have permission for this resource");
+    }
+
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleGeneric(Exception ex){
         log.error("Unhandled error", ex);
