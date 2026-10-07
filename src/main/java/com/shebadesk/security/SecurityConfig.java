@@ -46,7 +46,7 @@ public class SecurityConfig {
                         .accessDeniedHandler(this::forbidden))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/login").permitAll()
-                        .requestMatchers("/actuator/health", "/actuator/info",
+                        .requestMatchers("/actuator", "/actuator/health", "/actuator/info", "/actuator/prometheus",
                                 "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers(HttpMethod.GET).authenticated()
                         .requestMatchers(HttpMethod.POST, "/**").hasAnyRole("ADMIN", "RECEPTIONIST")

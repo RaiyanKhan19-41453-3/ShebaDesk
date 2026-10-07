@@ -176,7 +176,7 @@ patients (id UUID, name, location, email UNIQUE, date_of_birth, registered_date)
 
 ```bash
 ./mvnw test
-# Tests run: 12, Failures: 0, Errors: 0 — BUILD SUCCESS
+# Tests run: 15, Failures: 0, Errors: 0 — BUILD SUCCESS
 ```
 
 - `HospitalApiTest` (MockMvc + H2): create→`201`+`Location`, duplicate→`409`, validation→`400` with `errors{}`, missing→`404`, book→`201`, double-book→`409`
@@ -206,7 +206,7 @@ Makefile                      # up / down / logs / test / build / ps / seed-chec
 
 - [x] JWT auth with `ADMIN` / `RECEPTIONIST` roles
 - [x] Audit fields (`createdAt`, `updatedAt`) + soft delete
-- [ ] Prometheus metrics + Grafana dashboard
+- [x] Prometheus metrics + Grafana dashboard
 - [ ] React admin frontend
 
 ---

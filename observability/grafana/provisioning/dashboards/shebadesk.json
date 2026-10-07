@@ -1,0 +1,90 @@
+{
+  "title": "ShebaDesk",
+  "tags": ["shebadesk", "spring-boot"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "panels": [
+    {
+      "id": 1,
+      "title": "HTTP request rate (per endpoint)",
+      "type": "timeseries",
+      "gridPos": {"x": 0, "y": 0, "w": 12, "h": 8},
+      "targets": [
+        {
+          "expr": "sum by (uri) (rate(http_server_requests_seconds_count{application=\"shebadesk\"}[5m]))",
+          "legendFormat": "{{uri}}"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "HTTP errors (5xx rate)",
+      "type": "timeseries",
+      "gridPos": {"x": 12, "y": 0, "w": 12, "h": 8},
+      "targets": [
+        {
+          "expr": "sum(rate(http_server_requests_seconds_count{application=\"shebadesk\",status=~\"5..\"}[5m]))",
+          "legendFormat": "5xx/sec"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Latency p95 by endpoint",
+      "type": "timeseries",
+      "gridPos": {"x": 0, "y": 8, "w": 12, "h": 8},
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (uri, le) (rate(http_server_requests_seconds_bucket{application=\"shebadesk\"}[5m])))",
+          "legendFormat": "{{uri}}"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "JVM memory used",
+      "type": "timeseries",
+      "gridPos": {"x": 12, "y": 8, "w": 12, "h": 8},
+      "targets": [
+        {
+          "expr": "sum by (area) (jvm_memory_used_bytes{application=\"shebadesk\"})",
+          "legendFormat": "{{area}}"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "DB connections (Hikari active)",
+      "type": "stat",
+      "gridPos": {"x": 0, "y": 16, "w": 8, "h": 6},
+      "targets": [
+        {
+          "expr": "hikaricp_connections_active{application=\"shebadesk\"}"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "JVM threads live",
+      "type": "stat",
+      "gridPos": {"x": 8, "y": 16, "w": 8, "h": 6},
+      "targets": [
+        {
+          "expr": "jvm_threads_live_threads{application=\"shebadesk\"}"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "App up",
+      "type": "stat",
+      "gridPos": {"x": 16, "y": 16, "w": 8, "h": 6},
+      "targets": [
+        {
+          "expr": "up{job=\"shebadesk\"}"
+        }
+      ]
+    }
+  ]
+}
