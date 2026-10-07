@@ -1,4 +1,4 @@
-package com.mgt.hospital.exception;
+package com.shebadesk.exception;
 
 public class PatientNotFoundException extends RuntimeException {
     public PatientNotFoundException(String message) {

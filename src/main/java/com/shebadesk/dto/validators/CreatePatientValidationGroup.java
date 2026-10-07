@@ -1,4 +1,4 @@
-package com.mgt.hospital.dto.validators;
+package com.shebadesk.dto.validators;
 
 public interface CreatePatientValidationGroup {
 }

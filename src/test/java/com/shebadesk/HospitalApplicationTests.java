@@ -1,4 +1,4 @@
-package com.mgt.hospital;
+package com.shebadesk;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
