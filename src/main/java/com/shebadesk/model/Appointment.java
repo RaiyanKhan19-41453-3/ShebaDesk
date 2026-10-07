@@ -1,24 +1,42 @@
-package com.mgt.hospital.model;
+package com.shebadesk.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
 
 @Entity
+@Table(name = "appointments",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"doctor_id", "appointment_date"}))
 public class Appointment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "doctor_id")
+    @NotNull
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "doctor_id", nullable = false)
     private Doctor doctor;
 
-    @ManyToOne
-    @JoinColumn(name = "patient_id")
+    @NotNull
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "patient_id", nullable = false)
     private Patient patient;
 
+    @NotNull
+    @Column(name = "appointment_date", nullable = false)
     private LocalDate appointmentDate;
+
+    @Size(max = 1000, message = "Notes can not exceed 1000 characters")
     private String notes;
 
     public Long getId() {

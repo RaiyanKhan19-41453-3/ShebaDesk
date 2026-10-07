@@ -1,12 +1,16 @@
-package com.mgt.hospital.repository;
+package com.shebadesk.repository;
 
-import com.mgt.hospital.model.Doctor;
-import com.mgt.hospital.model.Patient;
+import com.shebadesk.model.Doctor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.UUID;
-
 @Repository
 public interface DoctorRepository extends JpaRepository<Doctor, Long> {
+    boolean existsByEmail(String email);
+    boolean existsByEmailAndIdNot(String email, Long id);
+    Page<Doctor> findByNameContainingIgnoreCase(String name, Pageable pageable);
+    Page<Doctor> findBySpecialtyContainingIgnoreCase(String specialty, Pageable pageable);
+    Page<Doctor> findByNameContainingIgnoreCaseAndSpecialtyContainingIgnoreCase(String name, String specialty, Pageable pageable);
 }

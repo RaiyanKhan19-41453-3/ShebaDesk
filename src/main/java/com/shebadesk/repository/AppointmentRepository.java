@@ -1,42 +1,30 @@
-package com.mgt.hospital.repository;
+package com.shebadesk.repository;
 
-import com.mgt.hospital.model.Appointment;
-import com.mgt.hospital.model.Doctor;
-import com.mgt.hospital.model.Patient;
+import com.shebadesk.model.Appointment;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface AppointmentRepository  extends JpaRepository<Appointment, Long> {
-    // find appointments by doctor id
     List<Appointment> findByDoctorId(Long doctorId);
 
-    // find appointments by patient id
-    List<Appointment> findByPatientId(Long patientId);
+    boolean existsByDoctorIdAndAppointmentDate(Long doctorId, LocalDate date);
 
-    // find appointment by doctor and patient
-    Optional<Appointment> findByDoctorIdAndPatientId(Long doctorId, Long patientId);
+    Page<Appointment> findByDoctorId(Long doctorId, Pageable pageable);
 
-    // find appointments on a specific date
-    List<Appointment> findByAppointmentDate(LocalDate date);
+    Page<Appointment> findByPatientId(UUID patientId, Pageable pageable);
 
-    // find appointments with notes containing some text
-    List<Appointment> findByNotesContaining(String keyword);
+    Page<Appointment> findByDoctorIdAndPatientId(Long doctorId, UUID patientId, Pageable pageable);
 
+    Page<Appointment> findByDoctorIdAndAppointmentDateBetween(Long doctorId, LocalDate from, LocalDate to, Pageable pageable);
 
+    Page<Appointment> findByPatientIdAndAppointmentDateBetween(UUID patientId, LocalDate from, LocalDate to, Pageable pageable);
 
-//    // Get all patients for a doctor
-//    @Query("SELECT a.patient FROM Appointment a WHERE a.doctor.id = :doctorId")
-//    List<Patient> findPatientsByDoctorIdexample(@Param("doctorId") Long doctorId);
-//
-//    // Get all doctors for a patient
-//    @Query("SELECT a.doctor FROM Appointment a WHERE a.patient.id = :patientId")
-//    List<Doctor> findDoctorsByPatientIdexample(@Param("patientId") Long patientId);
+    Page<Appointment> findByDoctorIdAndPatientIdAndAppointmentDateBetween(Long doctorId, UUID patientId, LocalDate from, LocalDate to, Pageable pageable);
 }
